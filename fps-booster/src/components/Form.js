@@ -15,6 +15,10 @@ import Button from '@material-ui/core/Button';
 // ------------------For Request Axios----------------
 import axios from 'axios';
 
+
+// import fileDownload from 'js-file-download'
+var fileDownload = require('js-file-download')
+
 const styles = theme=> ({
     App_title: {
         color: '#FFFFFF',
@@ -82,20 +86,29 @@ class Form extends Component{
         for (var value of data.values()) {
             console.log(value); 
         }
+        let url = "http://127.0.0.1:5000"
+        // let path =""
+        if(this.state.algorithm==="surf"){
+            url +="/surf"
+        }
+        else if(this.state.algorithm==="w"){
+            url +="/w"
+        }
+        console.log(url)
         axios({
-            url:"http://127.0.0.1:5000/w",
+            url:url,
             method:'post',
-            // headers:{
-            //     "content-type" : "multipart/form-data"
-            // },
-            data: data
+            data: data,
+            responseType:'blob'
         })
         .then((res)=>{
             // console.log(res)
-            const url = window.URL.createObjectURL(new Blob([res.data]));
+            console.log(res)
+            const url = window.URL.createObjectURL(new Blob([res.data], {type: 'video/avi'}));
             // console.log(url)
             // const link = document.createElement('a');
             // link.href = url;
+            // fileDownload(res.data, '1.png', 'image/png')
             this.setState({downloadURL:url},()=>{
                 console.log(this.state.downloadURL)
             })
@@ -125,7 +138,7 @@ class Form extends Component{
                 <Grid container spacing={24} justify="center">
                     <Grid item xs={5} >
                         <Paper className={classes.form_Paper}>
-                        <form className={classes.form} onSubmit={this.handleSubmit}>
+                        <form className={classes.form} onSubmit={this.handleSubmit} method="post">
                             <Typography variant="h3" gutterBottom className={classes.form_title}>
                                 FPS Booster
                             </Typography>
@@ -142,8 +155,8 @@ class Form extends Component{
                                     <MenuItem value="">
                                     <em>None</em>
                                     </MenuItem>
-                                    <MenuItem value={'algo_0'}>Algorithm 0</MenuItem>
-                                    <MenuItem value={'algo_1'}>Algorithm 1</MenuItem>
+                                    <MenuItem value={'surf'}>Surf</MenuItem>
+                                    <MenuItem value={'w'}>Algorithm 1</MenuItem>
                                     <MenuItem value={'algo_2'}>Algorithm 2</MenuItem>
                                 </Select>
                             </FormControl>
@@ -187,7 +200,7 @@ class Form extends Component{
                                     
                                     this.state.downloadURL!=='' && 
                                     (
-                                        <a download="vid.mp4" href={this.state.downloadURL}>
+                                        <a download="vid.avi" href={this.state.downloadURL}>
                                         <Button variant="contained" size="large" color="primary" className={classes.download_button}>
                                             download
                                         </Button>
